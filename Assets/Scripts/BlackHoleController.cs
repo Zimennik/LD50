@@ -1,12 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class BlackHoleController : MonoBehaviour
 {
-    public float growSpeed = 0.1f;
+    private float growSpeed = 0.001f;
     public float maxSize = 100.0f;
     public float startSize = 0.1f;
+
+    public float currentSize => transform.localScale.x;
 
 
     // Start is called before the first frame update
@@ -23,5 +24,10 @@ public class BlackHoleController : MonoBehaviour
         {
             transform.localScale = Vector3.one * maxSize;
         }
+    }
+
+    public void AddMass(IPullable pullable)
+    {
+        transform.DOScale(transform.localScale.x + (pullable.Mass * 0.1f), 0.5f);
     }
 }

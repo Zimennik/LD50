@@ -403,6 +403,14 @@ public class BETA_SETTINGS{
         #endregion
     }
 
+    public void ResetCameraVelocity()
+    {
+        originalRotation = transform.localRotation.eulerAngles;
+        followAngles = Vector3.zero;
+        targetAngles = Vector3.zero;
+        followVelocity = Vector3.zero;
+    }
+
     private void Update()
     {
         #region Look Settings - Update
@@ -412,7 +420,7 @@ public class BETA_SETTINGS{
             float mouseYInput;
             float mouseXInput;
             float camFOV = playerCamera.fieldOfView;
-            
+
             mouseYInput = mouseInputInversion == InvertMouseInput.None || mouseInputInversion == InvertMouseInput.X
                 ? Input.GetAxis("Mouse Y")
                 : -Input.GetAxis("Mouse Y");
@@ -457,6 +465,13 @@ public class BETA_SETTINGS{
             followAngles = Vector3.SmoothDamp(followAngles, targetAngles, ref followVelocity, (cameraSmoothing) / 100);
             playerCamera.transform.localRotation = Quaternion.Euler(-followAngles.x + originalRotation.x, 0, 0);
             transform.localRotation = Quaternion.Euler(0, followAngles.y + originalRotation.y, 0);
+        }
+        else
+        {
+            originalRotation = transform.localRotation.eulerAngles;
+            followAngles = Vector3.zero;
+            targetAngles = Vector3.zero;
+            followVelocity = Vector3.zero;
         }
 
         #endregion
@@ -585,9 +600,9 @@ public class BETA_SETTINGS{
 
 
         if (advanced._maxSlopeAngle > 0 && Physics.Raycast(
-            transform.position -
-            new Vector3(0, ((capsule.height / 2) * transform.localScale.y) - capsule.radius, 0),
-            new Vector3(dMove.x, -1.5f, dMove.z), out advanced.surfaceAngleCheck, capsule.radius * 4))
+                transform.position -
+                new Vector3(0, ((capsule.height / 2) * transform.localScale.y) - capsule.radius, 0),
+                new Vector3(dMove.x, -1.5f, dMove.z), out advanced.surfaceAngleCheck, capsule.radius * 4))
         {
             dMove = ((transform.forward * inputXY.y * speed + transform.right * inputXY.x * walkSpeedInternal) *
                      SlopeCheck()) + Vector3.up * fps_Rigidbody.velocity.y;
@@ -606,9 +621,9 @@ public class BETA_SETTINGS{
         {
             RaycastHit ST;
             if (!Physics.Raycast(
-                transform.position - new Vector3(0,
-                    ((capsule.height / 2) * transform.localScale.y) - (advanced.maxStepHeight), 0), dMove, out ST,
-                capsule.radius + 0.25f))
+                    transform.position - new Vector3(0,
+                        ((capsule.height / 2) * transform.localScale.y) - (advanced.maxStepHeight), 0), dMove, out ST,
+                    capsule.radius + 0.25f))
             {
                 advanced.stairMiniHop = true;
                 transform.position += new Vector3(0, advanced.maxStepHeight * 1.2f, 0);
@@ -1536,7 +1551,7 @@ public class FPAIO_Editor : Editor
                         LS_ref.objectReferenceValue = EditorGUILayout.ObjectField("", LS_ref.objectReferenceValue,
                             typeof(PhysicMaterial), false);
                         if (GUILayout.Button(new GUIContent("X", "Remove this Physic Material"),
-                            GUILayout.MaxWidth(20)))
+                                GUILayout.MaxWidth(20)))
                         {
                             t.dynamicFootstep.woodPhysMat.RemoveAt(i);
                         }
@@ -1546,7 +1561,7 @@ public class FPAIO_Editor : Editor
 
 
                     if (GUILayout.Button(new GUIContent("Add new Physic Material entry",
-                        "Add new Physic Material entry")))
+                            "Add new Physic Material entry")))
                     {
                         t.dynamicFootstep.woodPhysMat.Add(null);
                     }
@@ -1654,7 +1669,7 @@ public class FPAIO_Editor : Editor
                         LS_ref.objectReferenceValue = EditorGUILayout.ObjectField("", LS_ref.objectReferenceValue,
                             typeof(PhysicMaterial), false);
                         if (GUILayout.Button(new GUIContent("X", "Remove this Physic Material"),
-                            GUILayout.MaxWidth(20)))
+                                GUILayout.MaxWidth(20)))
                         {
                             t.dynamicFootstep.metalAndGlassPhysMat.RemoveAt(i);
                         }
@@ -1664,7 +1679,7 @@ public class FPAIO_Editor : Editor
 
 
                     if (GUILayout.Button(new GUIContent("Add new Physic Material entry",
-                        "Add new Physic Material entry")))
+                            "Add new Physic Material entry")))
                     {
                         t.dynamicFootstep.metalAndGlassPhysMat.Add(null);
                     }
@@ -1771,7 +1786,7 @@ public class FPAIO_Editor : Editor
                         LS_ref.objectReferenceValue = EditorGUILayout.ObjectField("", LS_ref.objectReferenceValue,
                             typeof(PhysicMaterial), false);
                         if (GUILayout.Button(new GUIContent("X", "Remove this Physic Material"),
-                            GUILayout.MaxWidth(20)))
+                                GUILayout.MaxWidth(20)))
                         {
                             t.dynamicFootstep.grassPhysMat.RemoveAt(i);
                         }
@@ -1781,7 +1796,7 @@ public class FPAIO_Editor : Editor
 
 
                     if (GUILayout.Button(new GUIContent("Add new Physic Material entry",
-                        "Add new Physic Material entry")))
+                            "Add new Physic Material entry")))
                     {
                         t.dynamicFootstep.grassPhysMat.Add(null);
                     }
@@ -1888,7 +1903,7 @@ public class FPAIO_Editor : Editor
                         LS_ref.objectReferenceValue = EditorGUILayout.ObjectField("", LS_ref.objectReferenceValue,
                             typeof(PhysicMaterial), false);
                         if (GUILayout.Button(new GUIContent("X", "Remove this Physic Material"),
-                            GUILayout.MaxWidth(20)))
+                                GUILayout.MaxWidth(20)))
                         {
                             t.dynamicFootstep.dirtAndGravelPhysMat.RemoveAt(i);
                         }
@@ -1898,7 +1913,7 @@ public class FPAIO_Editor : Editor
 
 
                     if (GUILayout.Button(new GUIContent("Add new Physic Material entry",
-                        "Add new Physic Material entry")))
+                            "Add new Physic Material entry")))
                     {
                         t.dynamicFootstep.dirtAndGravelPhysMat.Add(null);
                     }
@@ -2005,7 +2020,7 @@ public class FPAIO_Editor : Editor
                         LS_ref.objectReferenceValue = EditorGUILayout.ObjectField("", LS_ref.objectReferenceValue,
                             typeof(PhysicMaterial), false);
                         if (GUILayout.Button(new GUIContent("X", "Remove this Physic Material"),
-                            GUILayout.MaxWidth(20)))
+                                GUILayout.MaxWidth(20)))
                         {
                             t.dynamicFootstep.rockAndConcretePhysMat.RemoveAt(i);
                         }
@@ -2015,7 +2030,7 @@ public class FPAIO_Editor : Editor
 
 
                     if (GUILayout.Button(new GUIContent("Add new Physic Material entry",
-                        "Add new Physic Material entry")))
+                            "Add new Physic Material entry")))
                     {
                         t.dynamicFootstep.rockAndConcretePhysMat.Add(null);
                     }
@@ -2122,7 +2137,7 @@ public class FPAIO_Editor : Editor
                         LS_ref.objectReferenceValue = EditorGUILayout.ObjectField("", LS_ref.objectReferenceValue,
                             typeof(PhysicMaterial), false);
                         if (GUILayout.Button(new GUIContent("X", "Remove this Physic Material"),
-                            GUILayout.MaxWidth(20)))
+                                GUILayout.MaxWidth(20)))
                         {
                             t.dynamicFootstep.mudPhysMat.RemoveAt(i);
                         }
@@ -2132,7 +2147,7 @@ public class FPAIO_Editor : Editor
 
 
                     if (GUILayout.Button(new GUIContent("Add new Physic Material entry",
-                        "Add new Physic Material entry")))
+                            "Add new Physic Material entry")))
                     {
                         t.dynamicFootstep.mudPhysMat.Add(null);
                     }
@@ -2239,7 +2254,7 @@ public class FPAIO_Editor : Editor
                         LS_ref.objectReferenceValue = EditorGUILayout.ObjectField("", LS_ref.objectReferenceValue,
                             typeof(PhysicMaterial), false);
                         if (GUILayout.Button(new GUIContent("X", "Remove this Physic Material"),
-                            GUILayout.MaxWidth(20)))
+                                GUILayout.MaxWidth(20)))
                         {
                             t.dynamicFootstep.customPhysMat.RemoveAt(i);
                         }
@@ -2249,7 +2264,7 @@ public class FPAIO_Editor : Editor
 
 
                     if (GUILayout.Button(new GUIContent("Add new Physic Material entry",
-                        "Add new Physic Material entry")))
+                            "Add new Physic Material entry")))
                     {
                         t.dynamicFootstep.customPhysMat.Add(null);
                     }
