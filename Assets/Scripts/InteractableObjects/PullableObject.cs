@@ -3,6 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PullableObject : AffectedByBlackHole, IPullable, IPickupable, IInteractable
 {
+    [SerializeField] private GameObject _antimatterObject;
+    [SerializeField] private GameObject _regularObject;
     private float defaultForce = 1f;
     public float Mass => rb.mass;
 
@@ -37,7 +39,6 @@ public class PullableObject : AffectedByBlackHole, IPullable, IPickupable, IInte
     public void Interact()
     {
         PickUp();
-        ConvertToAntiMatter();
     }
 
     public void CursorEnter()
@@ -56,29 +57,8 @@ public class PullableObject : AffectedByBlackHole, IPullable, IPickupable, IInte
         if (IsAntiMatter) return;
         IsAntiMatter = true;
 
-        foreach (var renderer in GetComponentsInChildren<Renderer>())
-        {
-            foreach (var material in renderer.materials)
-            {
-                renderer.materials = new Material[] { GameManager.Instance.antiMatterMaterial };
-            }
-        }
-
-        foreach (var renderer in GetComponentsInChildren<MeshRenderer>())
-        {
-            var particleSystem = Instantiate(GameManager.Instance.antiMatterParticleSystem, renderer.transform);
-            particleSystem.transform.localPosition = Vector3.zero;
-            particleSystem.transform.localRotation = Quaternion.identity;
-            particleSystem.transform.localScale = Vector3.one;
-            particleSystem.transform.parent = null;
-
-            var psr = particleSystem.GetComponent<ParticleSystemRenderer>();
-            psr.renderMode = ParticleSystemRenderMode.Mesh;
-            var mesh = renderer.GetComponent<MeshFilter>().sharedMesh;
-            mesh.SetTriangles(new int[] { }, 1);
-            psr.mesh = mesh;
-            particleSystem.Play();
-        }
+        _antimatterObject.SetActive(true);
+        _regularObject.SetActive(false);
     }
 
     public void SetRigidbodyActive(bool value)

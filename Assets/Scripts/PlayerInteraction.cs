@@ -23,6 +23,11 @@ public class PlayerInteraction : MonoBehaviour
     private Vector3 _playerHandsLocalPos = new Vector3(0, 0.5f, 0.3f);
     private PullableObject _currentObjectInHands;
 
+
+    private Vector3 _convertLocalPosition = new Vector3(0.3f, -0.19f, 0.19f);
+    private bool isConverterInHands = false;
+
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
@@ -107,5 +112,21 @@ public class PlayerInteraction : MonoBehaviour
         _currentObjectInHands.Drop(GameManager.Instance.characterController._firstPersonAIO.playerCamera.transform
             .forward * 50f);
         _currentObjectInHands = null;
+    }
+
+    //Set player's camera as parent of the converter
+    //Smooth move converter to _convertLocalPosition with DOTween
+    //Enable Converter script
+    public void PickUpConverter(Converter converterGameObject)
+    {
+        isConverterInHands = true;
+        converterGameObject.isInHands = true;
+        converterGameObject.TurnCollider(false);
+
+        converterGameObject.transform.SetParent(GameManager.Instance.characterController._firstPersonAIO.playerCamera
+            .transform);
+        converterGameObject.transform.localRotation = Quaternion.identity;
+        converterGameObject.transform.localPosition = _convertLocalPosition;
+        converterGameObject.transform.DOLocalMove(_convertLocalPosition, 0.5f);
     }
 }
