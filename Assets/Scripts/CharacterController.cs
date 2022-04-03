@@ -19,6 +19,16 @@ public class CharacterController : MonoBehaviour
     private void Update()
     {
         CheckPlayerPosition();
+
+        //if player can move, then check for ESC press. 
+        //if ESC is pressed, then Show pause menu with GameManager.Instance.PauseGame()
+        if (Input.GetKeyDown(KeyCode.Escape))
+            if (_firstPersonAIO.playerCanMove)
+            {
+                {
+                    GameManager.Instance.PauseGame();
+                }
+            }
     }
 
     public void SetMovement(bool value)

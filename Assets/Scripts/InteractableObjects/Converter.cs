@@ -20,6 +20,8 @@ public class Converter : MonoBehaviour, IInteractable
     private CrosshairController _crosshairController;
     private bool isBlackhole = false;
 
+    public bool DisableInteraction => false;
+
     void Awake()
     {
         _laser.gameObject.SetActive(false);
@@ -32,6 +34,7 @@ public class Converter : MonoBehaviour, IInteractable
 
     void Update()
     {
+        if (Time.timeScale == 0) return;
         if (!isInHands) return;
         if (Input.GetMouseButton(0))
         {
@@ -62,6 +65,12 @@ public class Converter : MonoBehaviour, IInteractable
             var pullable = hit.transform.GetComponent<PullableObject>();
             if (pullable != null)
             {
+                if (isBlackhole)
+                {
+                    isBlackhole = false;
+                    currentConvertionTime = 0;
+                }
+
                 isBlackhole = false;
                 if (pullable.IsAntiMatter)
                 {
@@ -83,13 +92,19 @@ public class Converter : MonoBehaviour, IInteractable
                 var blackHole = hit.transform.GetComponent<BlackHoleController>();
                 if (blackHole != null)
                 {
-                    isBlackhole = true;
+                    if (!isBlackhole)
+                    {
+                        isBlackhole = true;
+                        currentConvertionTime = 0;
+                    }
+
                     currentConvertionTime += Time.deltaTime;
                     _crosshairController.SetProgressVisibility(true);
                     _crosshairController.SetProgress(currentConvertionTime / targetConvertionTime);
                 }
                 else
                 {
+                    isBlackhole = false;
                     currentConvertionTime = 0;
                     currentIPullable = null;
                     _crosshairController.SetProgress(0);
@@ -98,6 +113,7 @@ public class Converter : MonoBehaviour, IInteractable
         }
         else
         {
+            isBlackhole = false;
             currentConvertionTime = 0;
             _crosshairController.SetProgress(0);
             _crosshairController.SetProgressVisibility(false);
@@ -142,7 +158,27 @@ public class Converter : MonoBehaviour, IInteractable
                     layerMask: _layerMask))
             {
                 _laser.SetPosition(0, _laserStartTransform.position);
-                _laser.SetPosition(1, currentIPullable != null ? currentIPullable.transform.position : hit.point);
+
+                if (isBlackhole)
+                {
+                    _laser.SetPosition(1, GameManager.Instance.blackHoleController.transform.position);
+                }
+                else
+                {
+                    if (currentIPullable != null)
+                    {
+                        _laser.SetPosition(1,
+                            currentIPullable.pivotPoint != null
+                                ? currentIPullable.pivotPoint.position
+                                : currentIPullable.transform.position);
+                    }
+                    else
+                    {
+                        _laser.SetPosition(1, hit.point);
+                    }
+                }
+
+
                 Debug.Log(hit.transform.name);
             }
             else

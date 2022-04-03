@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // This script controls everything related to current scene
 // Manage of game's cutscenes
@@ -17,6 +18,7 @@ public class GameManager : MonoBehaviour
     // Singleton
     public static GameManager Instance;
 
+
     void Awake()
     {
         // Singleton
@@ -29,9 +31,16 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        LoadSettings();
         //TEST
         //EndCutscene();
+
+
+        //set cursor to not be visible
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
+
 
     //Load settings from PlayerSettings script and apply them
     public void LoadSettings()
@@ -73,5 +82,22 @@ public class GameManager : MonoBehaviour
         characterController.SetMovement(false);
         characterController.SetInteraction(false);
         _anihilationEnding.SetActive(true);
+    }
+
+    public void PauseGame()
+    {
+        if (Time.timeScale > 0)
+        {
+            uiManager.Pause();
+        }
+        else
+        {
+            uiManager.Unpause();
+        }
+    }
+
+    public void LoadMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }

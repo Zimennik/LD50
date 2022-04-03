@@ -9,7 +9,7 @@ public class Door : MonoBehaviour, IInteractable
 {
     //[SerializeField] private Collider _interactionCollider;
     [SerializeField] private Transform _doorHolder;
-
+    public bool DisableInteraction => false;
     private bool isOpen = false;
 
     //implementing IInteractable

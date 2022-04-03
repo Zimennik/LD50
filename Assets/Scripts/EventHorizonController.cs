@@ -1,6 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 
@@ -13,7 +11,7 @@ public class EventHorizonController : MonoBehaviour
         if (pullable != null)
         {
             GameManager.Instance.blackHoleController.AddMass(pullable);
-            Destroy(other.gameObject);
+            pullable.Transform.DOScale(0, 0.3f).OnComplete(() => Destroy(other.gameObject));
         }
     }
 }

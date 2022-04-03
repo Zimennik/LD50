@@ -8,4 +8,6 @@ public interface IInteractable
 
     string CustomText { get; }
     bool IsInteractable { get; }
+
+    bool DisableInteraction { get; }
 }

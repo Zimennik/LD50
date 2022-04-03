@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 
 //This class is responsible for player interaction with IInteractable objects; Interaction implemented with Raycast
@@ -20,13 +17,15 @@ public class PlayerInteraction : MonoBehaviour
 
     private IInteractable _currentInteractable;
 
-    private Vector3 _playerHandsLocalPos = new Vector3(0, 0.5f, 0.3f);
+    private Vector3 _playerHandsLocalPos = new Vector3(-0.3f, 0.5f, 0.5f);
     private PullableObject _currentObjectInHands;
 
 
     private Vector3 _convertLocalPosition = new Vector3(0.3f, -0.19f, 0.19f);
     private bool isConverterInHands = false;
 
+
+    private Tween _currentTween;
 
     private void Update()
     {
@@ -63,6 +62,8 @@ public class PlayerInteraction : MonoBehaviour
                 t1.forward, out hit, raycastDistance, layerMask))
         {
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+
+            if (interactable.DisableInteraction) return;
             if (interactable != null)
             {
                 if (_currentInteractable != null)
@@ -88,16 +89,18 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
+
     // When player interact with object, that can be picked up, this object disables its rigidbody
     // also sets its parent to player's hand and move there with DOTween
     public void PickUpObject(PullableObject _pullableObject)
     {
+        if (_currentTween != null) _currentTween.Kill();
         _currentObjectInHands = _pullableObject;
         SetInteract(false);
         _pullableObject.SetRigidbodyActive(false);
         _pullableObject.transform.SetParent(GameManager.Instance.characterController._firstPersonAIO.transform);
         _pullableObject.transform.localRotation = Quaternion.identity;
-        _pullableObject.transform.DOLocalMove(_playerHandsLocalPos, 0.5f);
+        _currentTween = _pullableObject.transform.DOLocalMove(_playerHandsLocalPos, 0.5f);
     }
 
     // When player drop object, this object enables its rigidbody
@@ -106,11 +109,13 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (_currentObjectInHands == null) return;
 
+        if (_currentTween != null) _currentTween.Kill();
+
         SetInteract(true);
-        _currentObjectInHands.transform.SetParent(null);
         _currentObjectInHands.SetRigidbodyActive(true);
+        _currentObjectInHands.transform.SetParent(null);
         _currentObjectInHands.Drop(GameManager.Instance.characterController._firstPersonAIO.playerCamera.transform
-            .forward * 50f);
+            .forward * 500f * _currentObjectInHands.Mass);
         _currentObjectInHands = null;
     }
 
@@ -128,5 +133,11 @@ public class PlayerInteraction : MonoBehaviour
         converterGameObject.transform.localRotation = Quaternion.identity;
         converterGameObject.transform.localPosition = _convertLocalPosition;
         converterGameObject.transform.DOLocalMove(_convertLocalPosition, 0.5f);
+    }
+
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log(collision.gameObject.name);
     }
 }

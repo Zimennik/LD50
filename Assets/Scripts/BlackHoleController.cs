@@ -28,6 +28,8 @@ public class BlackHoleController : MonoBehaviour
 
     public void AddMass(IPullable pullable)
     {
-        transform.DOScale(transform.localScale.x + (pullable.Mass * 0.1f), 0.5f);
+        var newsize = Mathf.Clamp(transform.localScale.x + (pullable.Mass * (pullable.IsAntiMatter ? -1 : 1)),
+            startSize, maxSize);
+        transform.DOScale(newsize, 0.5f);
     }
 }
