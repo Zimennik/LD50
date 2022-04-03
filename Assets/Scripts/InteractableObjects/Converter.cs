@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -27,6 +28,8 @@ public class Converter : MonoBehaviour, IInteractable
 
     private bool isShooting = false;
 
+    private Vector3 endingOffset = new Vector3(0, 0, 2);
+
     void Awake()
     {
         _laser.gameObject.SetActive(false);
@@ -40,12 +43,19 @@ public class Converter : MonoBehaviour, IInteractable
 
     void Update()
     {
-        if (!GameManager.Instance.characterController._playerInteraction.canInteract) return;
         if (Time.timeScale == 0) return;
         if (!isInHands) return;
-        if (GameManager.Instance.IsCutscenePlaying)
+        if (GameManager.Instance.IsCutscenePlaying && isShooting)
         {
             SetLaser(false);
+            _audioSource.Stop();
+            return;
+        }
+
+        if (!GameManager.Instance.characterController._playerInteraction.canInteract)
+        {
+            SetLaser(false);
+            _audioSource.Stop();
             return;
         }
 
@@ -96,6 +106,8 @@ public class Converter : MonoBehaviour, IInteractable
             var pullable = hit.transform.GetComponent<PullableObject>();
             if (pullable != null)
             {
+                targetConvertionTime = pullable.Mass * 10;
+
                 _audioSource.pitch = 1.2f;
                 if (isBlackhole)
                 {
@@ -124,6 +136,7 @@ public class Converter : MonoBehaviour, IInteractable
                 var blackHole = hit.transform.GetComponent<BlackHoleController>();
                 if (blackHole != null)
                 {
+                    targetConvertionTime = 5;
                     _audioSource.pitch = 1.2f;
                     if (!isBlackhole)
                     {
@@ -249,6 +262,17 @@ public class Converter : MonoBehaviour, IInteractable
     public void TurnCollider(bool value)
     {
         GetComponent<Collider>().enabled = value;
+    }
+
+    public async UniTask PointAtPlayer()
+    {
+        await UniTask.Delay(1000);
+        GameManager.Instance.ShowWhiteFade();
+        //_audioSource.Play();
+
+        //await UniTask.Delay(1000);
+
+        //s_audioSource.Stop();
     }
 
     public string CustomText => "Pick up anti-matter converter";

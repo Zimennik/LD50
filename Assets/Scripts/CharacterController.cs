@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -37,12 +38,21 @@ public class CharacterController : MonoBehaviour
     {
         if (other.GetComponent<EventHorizonController>() != null)
         {
-            GameManager.Instance.GameOverFallIntoBlackHole();
+            SetMovement(false);
+
+            _firstPersonAIO.playerCamera.DOFieldOfView(200, 1f)
+                .OnComplete(() => GameManager.Instance.GameOverFallIntoBlackHole());
         }
     }
 
-    public void SetMovement(bool value)
+    public async void SetMovement(bool value, bool isSmooth = false)
     {
+        if (isSmooth && value)
+        {
+            await LookForward();
+        }
+
+
         _firstPersonAIO.playerCanMove = value;
         _firstPersonAIO.enableCameraMovement = value;
     }
@@ -74,13 +84,20 @@ public class CharacterController : MonoBehaviour
     }
 
     //smooth look at transform. Smoothing implements with DOTween. If isSmooth = false, then look at transform instantly
-    public async void LookAt(Transform target, bool isSmooth)
+    public async void LookAt(Transform target, bool isSmooth, bool setMovementAfter = true)
     {
         //disable player movement
         SetMovement(false);
         _firstPersonAIO.playerCamera.transform.localRotation = Quaternion.identity;
         await _firstPersonAIO.transform.DOLookAt(target.position, isSmooth ? 2f : 0.1f).AsyncWaitForCompletion();
         //enable player movement
-        SetMovement(true);
+
+        if (setMovementAfter)
+            SetMovement(true);
+    }
+
+    public async UniTask LookForward()
+    {
+        await _firstPersonAIO.playerCamera.transform.DOLocalRotate(Vector3.zero, 1f).AsyncWaitForCompletion();
     }
 }

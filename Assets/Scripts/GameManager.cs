@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 // This script controls everything related to current scene
 // Manage of game's cutscenes
@@ -11,17 +13,24 @@ public class GameManager : MonoBehaviour
     [SerializeField] public CharacterController characterController;
     [SerializeField] public BlackHoleController blackHoleController;
     [SerializeField] public UIManager uiManager;
+    [SerializeField] public Image _whiteFade;
+
+    [SerializeField] private Converter _converter;
 
     [SerializeField] public Material antiMatterMaterial;
     [SerializeField] public ParticleSystem antiMatterParticleSystem;
 
     [SerializeField] private GameObject _anihilationEnding;
     [SerializeField] private GameObject _fallIntoBlackHoleEnding;
+    [SerializeField] private GameObject _goodEnding;
+    [SerializeField] private GameObject _badEnding;
 
     // Singleton
     public static GameManager Instance;
 
     public bool IsCutscenePlaying = false;
+
+    private bool isGameOver = false;
 
 
     void Awake()
@@ -111,6 +120,7 @@ public class GameManager : MonoBehaviour
 
     public void GameOverFallIntoBlackHole()
     {
+        isGameOver = true;
         //Disable player movement and interaction
         characterController.SetMovement(false);
         characterController.SetInteraction(false);
@@ -141,7 +151,7 @@ public class GameManager : MonoBehaviour
         await UniTask.Delay(200);
 
         //End cutscene
-        characterController.SetMovement(true);
+        characterController.SetMovement(true, true);
         characterController.SetInteraction(true);
         IsCutscenePlaying = false;
     }
@@ -158,7 +168,7 @@ public class GameManager : MonoBehaviour
         List<string> cutscene = new List<string>();
         cutscene.Add("Oh yes! This is my anti-matter converter!");
         cutscene.Add("Black hole grows because it consumes matter around it");
-        cutscene.Add("And with help of this converter I can convert matter into anti-matter!");
+        cutscene.Add("And with help of this device I can convert matter into ANTI-MATTER!");
         cutscene.Add("I hope this will help me shrink the black hole...");
         cutscene.Add("OK. I'm going to try it!");
 
@@ -168,7 +178,7 @@ public class GameManager : MonoBehaviour
         await UniTask.Delay(200);
 
         //End cutscene
-        characterController.SetMovement(true);
+        characterController.SetMovement(true, true);
         characterController.SetInteraction(true);
 
 
@@ -196,7 +206,7 @@ public class GameManager : MonoBehaviour
         await UniTask.Delay(200);
 
         //End cutscene
-        characterController.SetMovement(true);
+        characterController.SetMovement(true, true);
         characterController.SetInteraction(true);
         IsCutscenePlaying = false;
     }
@@ -221,8 +231,64 @@ public class GameManager : MonoBehaviour
         await UniTask.Delay(200);
 
         //End cutscene
-        characterController.SetMovement(true);
+        characterController.SetMovement(true, true);
         characterController.SetInteraction(true);
         IsCutscenePlaying = false;
+    }
+
+    public async void PlayEndingCutscene()
+    {
+        isGameOver = true;
+        IsCutscenePlaying = true;
+        characterController.SetMovement(false);
+        characterController.SetInteraction(false);
+
+
+        characterController.LookAt(blackHoleController.transform, true, false);
+
+        //Play cutscene
+        await UniTask.Delay(200);
+
+        List<string> cutscene = new List<string>();
+        cutscene.Add("Well, I don't have anything else to throw into black hole...");
+        cutscene.Add("But maybe...");
+
+        //Point gun at camera
+
+
+        await uiManager.ShowMessages(cutscene);
+
+
+        characterController.SetMovement(false);
+        characterController.SetInteraction(false);
+
+        await UniTask.Delay(1000);
+
+        cutscene.Clear();
+
+        cutscene.Add("I'll do this for science!");
+
+        await uiManager.ShowMessages(cutscene);
+
+
+        ShowWhiteFade();
+
+        await UniTask.Delay(2000);
+
+        //End cutscene
+
+        if (blackHoleController.currentSize < 1)
+        {
+            _goodEnding.SetActive(true);
+        }
+        else
+        {
+            _badEnding.SetActive(true);
+        }
+    }
+
+    public void ShowWhiteFade()
+    {
+        _whiteFade.DOFade(1, 0.5f);
     }
 }

@@ -26,6 +26,7 @@ public class PullableObject : AffectedByBlackHole, IPullable, IPickupable, IInte
 //The closer the object is to the center of the target, the stronger the pull
     public void Pull(Transform target)
     {
+        if (GameManager.Instance.IsCutscenePlaying) return;
         var force = (target.position - transform.position).normalized * defaultForce * blackHoleController.currentSize;
         rb.AddForce(force);
     }
@@ -80,5 +81,5 @@ public class PullableObject : AffectedByBlackHole, IPullable, IPickupable, IInte
         collider.enabled = value;
     }
 
-    public string CustomText => $"Pick up {name}";
+    public string CustomText => $"Press E to pick up";
 }

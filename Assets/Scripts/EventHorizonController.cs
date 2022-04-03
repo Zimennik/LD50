@@ -7,7 +7,7 @@ public class EventHorizonController : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        IPullable pullable = other.GetComponent<IPullable>();
+        PullableObject pullable = other.GetComponent<PullableObject>();
         if (pullable != null)
         {
             GameManager.Instance.blackHoleController.AddMass(pullable);
