@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BlackHoleController : MonoBehaviour
 {
-    private float growSpeed = 0.001f;
+    private float growSpeed = 0.01f;
     public float maxSize = 100.0f;
     public float startSize = 0.1f;
 
