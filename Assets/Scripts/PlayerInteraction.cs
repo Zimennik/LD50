@@ -114,8 +114,8 @@ public class PlayerInteraction : MonoBehaviour
         SetInteract(true);
         _currentObjectInHands.SetRigidbodyActive(true);
         _currentObjectInHands.transform.SetParent(null);
-        _currentObjectInHands.Drop(GameManager.Instance.characterController._firstPersonAIO.playerCamera.transform
-            .forward * 500f * _currentObjectInHands.Mass);
+        _currentObjectInHands.Drop((GameManager.Instance.characterController._firstPersonAIO.playerCamera.transform
+            .forward + Vector3.up * 0.3f) * 500f * _currentObjectInHands.Mass);
         _currentObjectInHands = null;
     }
 
@@ -133,6 +133,8 @@ public class PlayerInteraction : MonoBehaviour
         converterGameObject.transform.localRotation = Quaternion.identity;
         converterGameObject.transform.localPosition = _convertLocalPosition;
         converterGameObject.transform.DOLocalMove(_convertLocalPosition, 0.5f);
+
+        GameManager.Instance.PlayConverterCutscene();
     }
 
 

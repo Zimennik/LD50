@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ public class CharacterController : MonoBehaviour
     private void Awake()
     {
         _startPos = transform.position;
-        LookAt(_startLookAt, true);
+        //LookAt(_startLookAt, true);
     }
 
     private void Update()
@@ -29,6 +30,15 @@ public class CharacterController : MonoBehaviour
                     GameManager.Instance.PauseGame();
                 }
             }
+    }
+
+    //If player is touches the object with EventHorizonController script, then call GameManager.Instance.GameOverFallIntoBlackHole()
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<EventHorizonController>() != null)
+        {
+            GameManager.Instance.GameOverFallIntoBlackHole();
+        }
     }
 
     public void SetMovement(bool value)

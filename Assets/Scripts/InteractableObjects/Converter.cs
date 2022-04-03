@@ -7,6 +7,7 @@ public class Converter : MonoBehaviour, IInteractable
     [SerializeField] private Transform _laserStartTransform;
     [SerializeField] private Color[] _colors;
     [SerializeField] private LayerMask _layerMask;
+    private AudioSource _audioSource;
 
     private PullableObject currentIPullable;
 
@@ -22,9 +23,14 @@ public class Converter : MonoBehaviour, IInteractable
 
     public bool DisableInteraction => false;
 
+    private bool firstObjectConverted = false;
+
+    private bool isShooting = false;
+
     void Awake()
     {
         _laser.gameObject.SetActive(false);
+        _audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -34,19 +40,39 @@ public class Converter : MonoBehaviour, IInteractable
 
     void Update()
     {
+        if (!GameManager.Instance.characterController._playerInteraction.canInteract) return;
         if (Time.timeScale == 0) return;
         if (!isInHands) return;
+        if (GameManager.Instance.IsCutscenePlaying)
+        {
+            SetLaser(false);
+            return;
+        }
+
         if (Input.GetMouseButton(0))
         {
             Shoot();
             SetLaser(true);
             _crosshairController.SetProgressVisibility(true);
             //_crosshairController.SetProgress(0);
+
+            if (!isShooting)
+            {
+                isShooting = true;
+                _audioSource.Play();
+            }
         }
         else
         {
+            currentConvertionTime = 0;
             SetLaser(false);
             _crosshairController.SetProgressVisibility(false);
+
+            if (isShooting)
+            {
+                isShooting = false;
+                _audioSource.Stop();
+            }
         }
     }
 
@@ -58,6 +84,11 @@ public class Converter : MonoBehaviour, IInteractable
     //if currentConvertionTime is greater than targetConvertionTime, call ConvertToAntiMatter()
     public void Shoot()
     {
+        if (currentConvertionTime > targetConvertionTime / 2)
+        {
+            GameManager.Instance.uiManager.HideAntiMatterTutorial();
+        }
+
         RaycastHit hit;
         Camera camera = GameManager.Instance.characterController._firstPersonAIO.playerCamera;
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, 100, layerMask: _layerMask))
@@ -65,6 +96,7 @@ public class Converter : MonoBehaviour, IInteractable
             var pullable = hit.transform.GetComponent<PullableObject>();
             if (pullable != null)
             {
+                _audioSource.pitch = 1.2f;
                 if (isBlackhole)
                 {
                     isBlackhole = false;
@@ -92,6 +124,7 @@ public class Converter : MonoBehaviour, IInteractable
                 var blackHole = hit.transform.GetComponent<BlackHoleController>();
                 if (blackHole != null)
                 {
+                    _audioSource.pitch = 1.2f;
                     if (!isBlackhole)
                     {
                         isBlackhole = true;
@@ -104,6 +137,7 @@ public class Converter : MonoBehaviour, IInteractable
                 }
                 else
                 {
+                    _audioSource.pitch = 1;
                     isBlackhole = false;
                     currentConvertionTime = 0;
                     currentIPullable = null;
@@ -113,6 +147,7 @@ public class Converter : MonoBehaviour, IInteractable
         }
         else
         {
+            _audioSource.pitch = 1;
             isBlackhole = false;
             currentConvertionTime = 0;
             _crosshairController.SetProgress(0);
@@ -136,6 +171,12 @@ public class Converter : MonoBehaviour, IInteractable
                 currentIPullable = null;
                 currentConvertionTime = 0;
                 _crosshairController.SetProgressVisibility(false);
+
+                if (!firstObjectConverted)
+                {
+                    firstObjectConverted = true;
+                    GameManager.Instance.PlayAntiMatterConvertedCutscene();
+                }
             }
         }
 

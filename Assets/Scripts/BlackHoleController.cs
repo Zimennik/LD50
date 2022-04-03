@@ -9,6 +9,8 @@ public class BlackHoleController : MonoBehaviour
 
     public float currentSize => transform.localScale.x;
 
+    private bool firstAntiMatterConsumed = false;
+
 
     // Start is called before the first frame update
     void Start()
@@ -19,6 +21,8 @@ public class BlackHoleController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GameManager.Instance.IsCutscenePlaying) return;
+
         transform.localScale += Vector3.one * growSpeed * Time.deltaTime;
         if (transform.localScale.x > maxSize)
         {
@@ -28,6 +32,12 @@ public class BlackHoleController : MonoBehaviour
 
     public void AddMass(IPullable pullable)
     {
+        if (pullable.IsAntiMatter && !firstAntiMatterConsumed)
+        {
+            firstAntiMatterConsumed = true;
+            GameManager.Instance.PlayAntiMatterConsumeCutscene();
+        }
+
         var newsize = Mathf.Clamp(transform.localScale.x + (pullable.Mass * (pullable.IsAntiMatter ? -1 : 1)),
             startSize, maxSize);
         transform.DOScale(newsize, 0.5f);
