@@ -7,9 +7,12 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] public CharacterController characterController;
     [SerializeField] public BlackHoleController blackHoleController;
+    [SerializeField] public UIManager uiManager;
 
     [SerializeField] public Material antiMatterMaterial;
     [SerializeField] public ParticleSystem antiMatterParticleSystem;
+
+    [SerializeField] private GameObject _anihilationEnding;
 
     // Singleton
     public static GameManager Instance;
@@ -63,5 +66,12 @@ public class GameManager : MonoBehaviour
     {
         characterController.SetMovement(false);
         characterController.SetInteraction(false);
+    }
+
+    public void AnihilationEnding()
+    {
+        characterController.SetMovement(false);
+        characterController.SetInteraction(false);
+        _anihilationEnding.SetActive(true);
     }
 }

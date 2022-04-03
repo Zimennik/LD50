@@ -17,10 +17,17 @@ public class Converter : MonoBehaviour, IInteractable
 
     public bool isInHands = false;
 
+    private CrosshairController _crosshairController;
+    private bool isBlackhole = false;
 
     void Awake()
     {
         _laser.gameObject.SetActive(false);
+    }
+
+    void Start()
+    {
+        _crosshairController = GameManager.Instance.uiManager.crosshairController;
     }
 
     void Update()
@@ -30,10 +37,13 @@ public class Converter : MonoBehaviour, IInteractable
         {
             Shoot();
             SetLaser(true);
+            _crosshairController.SetProgressVisibility(true);
+            //_crosshairController.SetProgress(0);
         }
         else
         {
             SetLaser(false);
+            _crosshairController.SetProgressVisibility(false);
         }
     }
 
@@ -52,34 +62,64 @@ public class Converter : MonoBehaviour, IInteractable
             var pullable = hit.transform.GetComponent<PullableObject>();
             if (pullable != null)
             {
+                isBlackhole = false;
                 if (pullable.IsAntiMatter)
                 {
                     currentIPullable = null;
                     return;
                 }
 
+                if (currentIPullable != pullable)
+                {
+                    currentConvertionTime = 0;
+                }
+
                 currentConvertionTime += Time.deltaTime;
                 currentIPullable = pullable;
+                _crosshairController.SetProgress(currentConvertionTime / targetConvertionTime);
             }
             else
             {
-                currentConvertionTime = 0;
-                currentIPullable = null;
+                var blackHole = hit.transform.GetComponent<BlackHoleController>();
+                if (blackHole != null)
+                {
+                    isBlackhole = true;
+                    currentConvertionTime += Time.deltaTime;
+                    _crosshairController.SetProgressVisibility(true);
+                    _crosshairController.SetProgress(currentConvertionTime / targetConvertionTime);
+                }
+                else
+                {
+                    currentConvertionTime = 0;
+                    currentIPullable = null;
+                    _crosshairController.SetProgress(0);
+                }
             }
         }
         else
         {
             currentConvertionTime = 0;
+            _crosshairController.SetProgress(0);
+            _crosshairController.SetProgressVisibility(false);
             currentIPullable = null;
         }
 
         if (currentConvertionTime > targetConvertionTime)
         {
+            if (isBlackhole)
+            {
+                //Destroy(GameManager.Instance.characterController.gameObject);
+                GameManager.Instance.AnihilationEnding();
+
+                return;
+            }
+
             if (currentIPullable != null)
             {
                 currentIPullable.ConvertToAntiMatter();
                 currentIPullable = null;
                 currentConvertionTime = 0;
+                _crosshairController.SetProgressVisibility(false);
             }
         }
 
