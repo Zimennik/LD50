@@ -8,7 +8,7 @@ public class Converter : MonoBehaviour, IInteractable
     [SerializeField] private Transform _laserStartTransform;
     [SerializeField] private Color[] _colors;
     [SerializeField] private LayerMask _layerMask;
-    private AudioSource _audioSource;
+    private AudioSource _audioSource; 
 
     private PullableObject currentIPullable;
 
@@ -106,7 +106,7 @@ public class Converter : MonoBehaviour, IInteractable
             var pullable = hit.transform.GetComponent<PullableObject>();
             if (pullable != null)
             {
-                targetConvertionTime = pullable.Mass * 10;
+                targetConvertionTime = pullable.Mass * 3;
 
                 _audioSource.pitch = 1.2f;
                 if (isBlackhole)

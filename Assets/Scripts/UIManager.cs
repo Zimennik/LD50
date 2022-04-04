@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -22,6 +23,11 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         HideGlobalFade();
+    }
+
+    public void MainScreen()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 
     //Load senseetivity and volume from PlayerSettings with LoadMehtod and apply them to the sliders
@@ -70,6 +76,7 @@ public class UIManager : MonoBehaviour
     public void OnVolumeSliderChange(float value)
     {
         PlayerSettings.SetVolume(value);
+        GameManager.Instance.LoadSettings();
     }
 
     public async UniTask ShowMessages(List<string> messages)
@@ -92,8 +99,9 @@ public class UIManager : MonoBehaviour
         _globalFade.DOFade(1, 2f);
     }
 
-    public void HideGlobalFade()
+    public async void HideGlobalFade()
     {
+        await UniTask.Delay(1000);
         _globalFade.DOFade(0, 2f);
     }
 }

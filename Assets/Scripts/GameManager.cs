@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -14,6 +15,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public BlackHoleController blackHoleController;
     [SerializeField] public UIManager uiManager;
     [SerializeField] public Image _whiteFade;
+    [SerializeField] private TMP_Text _objectsLeft;
 
     [SerializeField] private Converter _converter;
 
@@ -25,12 +27,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject _goodEnding;
     [SerializeField] private GameObject _badEnding;
 
+    [SerializeField] public AudioSource _audioSource;
+    [SerializeField] public AudioClip _antimatterClip;
+
     // Singleton
     public static GameManager Instance;
 
     public bool IsCutscenePlaying = false;
 
-    private bool isGameOver = false;
+    public bool isGameOver = false;
 
 
     void Awake()
@@ -69,35 +74,15 @@ public class GameManager : MonoBehaviour
         AudioListener.volume = PlayerSettings.volume;
     }
 
-    //Methode that called when game starts
-    //Player interaction and movement is disabled until start cutscene is over
-    public void StartGame()
-    {
-        characterController.SetMovement(false);
-        characterController.SetInteraction(false);
-    }
-
-    //Methode that called when cutscene is over
-    //Player interaction and movement is enabled
-    public void EndCutscene()
-    {
-        characterController.SetMovement(true);
-        characterController.SetInteraction(true);
-    }
-
-    //Methode that called when player dies
-    //Player interaction and movement is disabled
-    public void PlayerDied()
-    {
-        characterController.SetMovement(false);
-        characterController.SetInteraction(false);
-    }
 
     public void AnihilationEnding()
     {
+        IsCutscenePlaying = true;
+        isGameOver = true;
         characterController.SetMovement(false);
         characterController.SetInteraction(false);
         _anihilationEnding.SetActive(true);
+        blackHoleController._AudioSource.Stop();
     }
 
     public void PauseGame()
@@ -118,7 +103,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void GameOverFallIntoBlackHole()
+    public async void GameOverFallIntoBlackHole()
     {
         isGameOver = true;
         //Disable player movement and interaction
@@ -127,6 +112,9 @@ public class GameManager : MonoBehaviour
 
         //Show _fallIntoBlackHoleEnding screen
         _fallIntoBlackHoleEnding.SetActive(true);
+        blackHoleController._AudioSource.Stop();
+        await UniTask.Delay(4000);
+        SceneManager.LoadScene("MainMenu");
     }
 
     public async void PlayCutscene()
@@ -136,7 +124,7 @@ public class GameManager : MonoBehaviour
         characterController.SetInteraction(false);
 
         //Play cutscene
-        await UniTask.Delay(200);
+        await UniTask.Delay(1500);
 
         List<string> cutscene = new List<string>();
         cutscene.Add("FINALY! I DID IT! The work of my life is complete!");
@@ -277,7 +265,8 @@ public class GameManager : MonoBehaviour
 
         //End cutscene
 
-        if (blackHoleController.currentSize < 1)
+        blackHoleController._AudioSource.Stop();
+        if (blackHoleController.totalAntimatterMass > 10f)
         {
             _goodEnding.SetActive(true);
         }
@@ -290,5 +279,11 @@ public class GameManager : MonoBehaviour
     public void ShowWhiteFade()
     {
         _whiteFade.DOFade(1, 0.5f);
+    }
+
+    public void SetObjectsLeft(int value)
+    {
+        _objectsLeft.text = "Objects left: " + value.ToString() + "\n Anti-Matter Absorbed: " +
+                            blackHoleController.totalAntimatterMass.ToString("0.00");
     }
 }

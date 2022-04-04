@@ -36,6 +36,8 @@ public class CharacterController : MonoBehaviour
     //If player is touches the object with EventHorizonController script, then call GameManager.Instance.GameOverFallIntoBlackHole()
     private void OnTriggerEnter(Collider other)
     {
+        if (GameManager.Instance.isGameOver) return;
+
         if (other.GetComponent<EventHorizonController>() != null)
         {
             SetMovement(false);

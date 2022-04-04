@@ -4,17 +4,22 @@ using UnityEngine;
 
 public class BlackHoleController : MonoBehaviour
 {
-    private float growSpeed = 0.03f;
+    [SerializeField] public AudioSource _AudioSource;
+
+    private float growSpeed = 0.035f;
     public float maxSize = 100.0f;
-    public float startSize = 0.1f;
+    public float startSize = 0.2f;
+
+    [SerializeField] private AudioClip _absorbClip;
 
     public float currentSize => transform.localScale.x;
     private bool firstAntiMatterConsumed = false;
 
-
     private float growCoef = 1;
 
     private List<PullableObject> _pullableObjects = new List<PullableObject>();
+
+    public float totalAntimatterMass = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -25,20 +30,25 @@ public class BlackHoleController : MonoBehaviour
         {
             _pullableObjects.Add(pullableObject);
         }
+
+        GameManager.Instance.SetObjectsLeft(_pullableObjects.Count);
     }
 
     // Update is called once per frame
     void Update()
     {
+        _AudioSource.volume = 0.1f + (currentSize / 6) * 0.9f;
         if (GameManager.Instance.IsCutscenePlaying) return;
 
-        growCoef += Time.deltaTime * 0.02f;
+        growCoef += Time.deltaTime * 0.03f;
 
         transform.localScale += Vector3.one * growSpeed * growCoef * Time.deltaTime;
         if (transform.localScale.x > maxSize)
         {
             transform.localScale = Vector3.one * maxSize;
         }
+
+        //volume base on size
     }
 
     public void AddMass(PullableObject pullable)
@@ -51,9 +61,16 @@ public class BlackHoleController : MonoBehaviour
             GameManager.Instance.PlayAntiMatterConsumeCutscene();
         }
 
-        var newsize = Mathf.Clamp(transform.localScale.x + (pullable.Mass * (pullable.IsAntiMatter ? -1 : 1)),
+        if (pullable.IsAntiMatter)
+        {
+            totalAntimatterMass += pullable.Mass;
+        }
+
+        var newsize = Mathf.Clamp(transform.localScale.x + (pullable.Mass / 2 * (pullable.IsAntiMatter ? -1.5f : 1)),
             startSize, maxSize);
         transform.DOScale(newsize, 0.5f);
+
+        _AudioSource.PlayOneShot(_absorbClip);
     }
 
     public void RemoveObjectFromList(PullableObject pullable)
@@ -61,6 +78,8 @@ public class BlackHoleController : MonoBehaviour
         if (_pullableObjects.Contains(pullable))
         {
             _pullableObjects.Remove(pullable);
+
+            GameManager.Instance.SetObjectsLeft(_pullableObjects.Count);
 
             if (_pullableObjects.Count == 0)
                 GameManager.Instance.PlayEndingCutscene();

@@ -22,11 +22,20 @@ public class PullableObject : AffectedByBlackHole, IPullable, IPickupable, IInte
     public bool DisableInteraction => disableInteraction;
 
 
+    public void Update()
+    {
+        if (transform.position.y < -10)
+        {
+            GameManager.Instance.blackHoleController.RemoveObjectFromList(this);
+            Destroy(this.gameObject);
+        }
+    }
+
 // Apply force to pull this object to center of target
 //The closer the object is to the center of the target, the stronger the pull
     public void Pull(Transform target)
     {
-        if (GameManager.Instance.IsCutscenePlaying) return;
+        if (GameManager.Instance.IsCutscenePlaying || GameManager.Instance.isGameOver) return;
         var force = (target.position - transform.position).normalized * defaultForce * blackHoleController.currentSize;
         rb.AddForce(force);
     }
@@ -70,6 +79,8 @@ public class PullableObject : AffectedByBlackHole, IPullable, IPickupable, IInte
     {
         if (IsAntiMatter) return;
         IsAntiMatter = true;
+
+        GameManager.Instance._audioSource.PlayOneShot(GameManager.Instance._antimatterClip);
 
         _antimatterObject.SetActive(true);
         _regularObject.SetActive(false);
