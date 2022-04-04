@@ -16,10 +16,11 @@ public class MainMenu : MonoBehaviour
 
     private void Awake()
     {
+        Time.timeScale = 1;
         //set cursor to visible
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        
+
         _fadeImage.color = Color.black;
         _fadeImage.gameObject.SetActive(true);
         _fadeImage.DOFade(0, 1f).OnComplete(() => _fadeImage.gameObject.SetActive(false));
@@ -63,14 +64,13 @@ public class MainMenu : MonoBehaviour
         //Save sensitivity to PlayerSettings
         PlayerSettings.SetMouseSensitivity(value);
     }
-    
+
     public void PauseGame()
     {
         Time.timeScale = 0;
         //and show pause menu
-        
     }
-    
+
     public void Unpause()
     {
         Time.timeScale = 1;
