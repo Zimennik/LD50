@@ -275,6 +275,6 @@ public class Converter : MonoBehaviour, IInteractable
         //s_audioSource.Stop();
     }
 
-    public string CustomText => "Pick up anti-matter converter";
+    public string CustomText => "Press E to pick up anti-matter converter";
     public bool IsInteractable { get; }
 }

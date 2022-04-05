@@ -7,6 +7,7 @@ public class EventHorizonController : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
+        if (GameManager.Instance.isGameOver) return;
         PullableObject pullable = other.GetComponent<PullableObject>();
         if (pullable != null)
         {

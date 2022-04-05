@@ -1247,7 +1247,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'BLACK HOLE
+  m_text: 'BLACK HOLES
 
     <size=-20>for dummies</size>'
   m_isRightToLeft: 0
